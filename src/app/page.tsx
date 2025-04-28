@@ -1,6 +1,9 @@
 import HeroSlider from '@/components/home/HeroSlider';
 import CategoryGrid from '@/components/home/CategoryGrid';
 import BestSellingProduct from '@/components/home/BestSellingProduct';
+import DiscountProducts from '@/components/home/DiscountProducts';
+import ImportedProducts from '@/components/home/ImportedProducts';
+import BakingTools from '@/components/home/BakingTools';
 
 export default function Home() {
   return (
@@ -11,6 +14,15 @@ export default function Home() {
       </div>
       <div className="max-w-7xl mx-auto w-full">
         <BestSellingProduct />
+      </div>
+      <div className="max-w-7xl mx-auto w-full">
+        <DiscountProducts />
+      </div>
+      <div className="max-w-7xl mx-auto w-full">
+        <ImportedProducts />
+      </div>
+      <div className="max-w-7xl mx-auto w-full">
+        <BakingTools />
       </div>
     </div>
   );

@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Menu, User, Search } from 'lucide-react';
+import { Menu, User, Search, ShoppingCart } from 'lucide-react';
 
 const Navbar = () => {
   return (
@@ -9,13 +9,12 @@ const Navbar = () => {
           <div className="flex justify-between h-16 items-center">
             <div className="flex items-center">
               <button
-                className="p-2 rounded-md hover:bg-gray-100"
+                className="p-2 rounded-md hover:bg-gray-200 transition-colors"
                 aria-label="Open menu"
               >
                 <Menu className="h-7 w-7 text-gray-800" strokeWidth={2} />
               </button>
               <Link href="/" className="ml-4 text-2xl font-extrabold tracking-tight">
-                <span className="bg-gradient-to-r from-primary to-primary-light text-transparent bg-clip-text"></span>
                 <span className="text-gray-800">NanuBhai</span>
               </Link>
             </div>
@@ -23,7 +22,14 @@ const Navbar = () => {
             <div className="flex items-center space-x-4">
               <span className="hidden md:block font-medium text-gray-800">Hi, User</span>
               <button
-                className="p-2 rounded-full hover:bg-gray-100"
+                className="p-2 rounded-full hover:bg-gray-200 transition-colors relative"
+                aria-label="Shopping cart"
+              >
+                <ShoppingCart className="h-7 w-7 text-gray-800" strokeWidth={2} />
+                <span className="absolute -top-1 -right-1 bg-primary text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">3</span>
+              </button>
+              <button
+                className="p-2 rounded-full hover:bg-gray-200 transition-colors"
                 aria-label="User menu"
               >
                 <User className="h-7 w-7 text-gray-800" strokeWidth={2} />
