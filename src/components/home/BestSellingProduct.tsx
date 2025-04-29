@@ -1,5 +1,6 @@
 'use client';
 import Image from 'next/image';
+import Link from 'next/link';
 import { useState, useEffect } from 'react';
 
 // Sample product data
@@ -174,10 +175,14 @@ const BestSellingProduct = () => {
       {/* Product Grid */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-4 px-2 sm:px-4">
         {products.map((product) => (
-          <article
+          <Link
+            href={`/products/${product.id}`}
             key={product.id}
-            className="bg-white rounded-lg shadow-md overflow-hidden flex flex-col transition-transform duration-300 hover:shadow-lg hover:-translate-y-1"
+            className="block h-full cursor-pointer"
           >
+            <article
+              className="bg-white rounded-lg shadow-md overflow-hidden flex flex-col transition-transform duration-300 hover:shadow-lg hover:-translate-y-1 h-full"
+            >
             {/* Product Image with Discount Badge */}
             <figure className="relative aspect-square">
               <Image
@@ -208,6 +213,7 @@ const BestSellingProduct = () => {
               </div>
             </div>
           </article>
+          </Link>
         ))}
       </div>
     </section>

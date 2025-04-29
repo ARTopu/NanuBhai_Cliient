@@ -1,5 +1,6 @@
 'use client';
 import Image from 'next/image';
+import Link from 'next/link';
 import { useState, useEffect } from 'react';
 
 // Sample product data
@@ -161,7 +162,7 @@ const ImportedProducts = () => {
                 sizes="100vw"
                 style={{ objectFit: 'cover' }}
               />
-              
+
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-transparent flex flex-col items-center justify-center text-white">
                 <h2 className="text-2xl md:text-4xl font-extrabold mb-3 text-white drop-shadow-md">{slide.title}</h2>
                 <p className="text-lg md:text-xl text-white font-medium drop-shadow-md px-4 py-2 rounded-full bg-black/30">{slide.subtitle}</p>
@@ -174,10 +175,14 @@ const ImportedProducts = () => {
       {/* Product Grid */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-4 px-2 sm:px-4">
         {products.map((product) => (
-          <article
+          <Link
+            href={`/products/${product.id}`}
             key={product.id}
-            className="bg-white rounded-lg shadow-md overflow-hidden flex flex-col transition-transform duration-300 hover:shadow-lg hover:-translate-y-1"
+            className="block h-full cursor-pointer"
           >
+            <article
+              className="bg-white rounded-lg shadow-md overflow-hidden flex flex-col transition-transform duration-300 hover:shadow-lg hover:-translate-y-1 h-full"
+            >
             {/* Product Image with Discount Badge */}
             <figure className="relative aspect-square">
               <Image
@@ -197,17 +202,18 @@ const ImportedProducts = () => {
               <h3 className="text-sm font-bold mb-1 line-clamp-2" style={{ color: '#000000' }} title={product.title}>
                 {product.title}
               </h3>
-              
+
               {product.freeShipping && (
                 <span className="text-[10px] text-green-600 font-medium mb-1">Free Shipping</span>
               )}
-              
+
               <div className="mt-auto flex items-center">
                 <span className="text-sm font-bold" style={{ color: '#000000' }}>৳{product.price.toFixed(2)}</span>
                 <span className="ml-2 text-xs text-gray-500 line-through">৳{product.originalPrice.toFixed(2)}</span>
               </div>
             </div>
           </article>
+          </Link>
         ))}
       </div>
     </section>
