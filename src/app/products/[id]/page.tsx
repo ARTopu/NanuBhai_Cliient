@@ -90,9 +90,9 @@ export default function ProductPage() {
     id: 0,
     title: 'Product Not Found',
     images: [
-      { id: 1, src: '/images/categories/placeholder.svg', alt: 'Product not found' },
-      { id: 2, src: '/images/categories/placeholder.svg', alt: 'Product not found' },
-      { id: 3, src: '/images/categories/placeholder.svg', alt: 'Product not found' },
+      { id: 1, src: '/images/categories/categoryimg.jpg', alt: 'Product not found' },
+      { id: 2, src: '/images/categories/categoryimg.jpg', alt: 'Product not found' },
+      { id: 3, src: '/images/categories/categoryimg.jpg', alt: 'Product not found' },
     ],
     price: 0,
     originalPrice: 0,

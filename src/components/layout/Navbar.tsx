@@ -21,13 +21,14 @@ const Navbar = () => {
 
             <div className="flex items-center space-x-4">
               <span className="hidden md:block font-medium text-gray-800">Hi, User</span>
-              <button
+              <Link
+                href="/cart"
                 className="p-2 rounded-full hover:bg-gray-200 transition-colors relative"
                 aria-label="Shopping cart"
               >
-                <ShoppingCart className="h-7 w-7 text-gray-800" strokeWidth={2} />
+                <ShoppingCart className="h-7 w-7 text-black" strokeWidth={2} />
                 <span className="absolute -top-1 -right-1 bg-primary text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">3</span>
-              </button>
+              </Link>
               <button
                 className="p-2 rounded-full hover:bg-gray-200 transition-colors"
                 aria-label="User menu"
