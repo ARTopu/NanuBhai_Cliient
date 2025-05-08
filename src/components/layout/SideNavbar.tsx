@@ -10,8 +10,11 @@ import {
   Flag,
   MessageSquare,
   LogOut,
+  LogIn,
+  UserPlus,
   X
 } from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
 
 interface SideNavbarProps {
   isOpen: boolean;
@@ -21,6 +24,7 @@ interface SideNavbarProps {
 const SideNavbar: React.FC<SideNavbarProps> = ({ isOpen, onClose }) => {
   const pathname = usePathname();
   const sidebarRef = useRef<HTMLDivElement>(null);
+  const { isAuthenticated, logout } = useAuth();
 
   // Close sidebar when clicking outside or pressing Escape key
   useEffect(() => {
@@ -57,14 +61,33 @@ const SideNavbar: React.FC<SideNavbarProps> = ({ isOpen, onClose }) => {
   // We don't need to prevent scrolling when sidebar is open
   // This effect has been removed to allow scrolling while the sidebar is open
 
-  const navItems = [
+  // Common navigation items
+  const commonNavItems = [
     { name: 'Home', icon: <Home className="w-5 h-5" />, path: '/' },
     { name: 'Categories', icon: <Grid className="w-5 h-5" />, path: '/categories' },
     { name: 'Review', icon: <Star className="w-5 h-5" />, path: '/review' },
     { name: 'Report', icon: <Flag className="w-5 h-5" />, path: '/report' },
     { name: 'Feedback', icon: <MessageSquare className="w-5 h-5" />, path: '/feedback' },
-    { name: 'Logout', icon: <LogOut className="w-5 h-5" />, path: '/logout' },
   ];
+
+  // Authentication-specific items
+  const authNavItems = isAuthenticated
+    ? [{
+        name: 'Logout',
+        icon: <LogOut className="w-5 h-5" />,
+        path: '#',
+        onClick: () => {
+          logout();
+          onClose();
+        }
+      }]
+    : [
+        { name: 'Login', icon: <LogIn className="w-5 h-5" />, path: '/login' },
+        { name: 'Register', icon: <UserPlus className="w-5 h-5" />, path: '/register' }
+      ];
+
+  // Combine the navigation items
+  const navItems = [...commonNavItems, ...authNavItems];
 
   return (
     <>
@@ -92,23 +115,36 @@ const SideNavbar: React.FC<SideNavbarProps> = ({ isOpen, onClose }) => {
           <ul className="space-y-3">
             {navItems.map((item) => (
               <li key={item.name}>
-                <Link
-                  href={item.path}
-                  className={`flex items-center space-x-3 py-2 px-4 rounded-md transition-colors ${
-                    pathname === item.path
-                      ? 'bg-black text-white !text-white border-l-4 border-primary'
-                      : 'text-black hover:bg-gray-100'
-                  }`}
-                  style={{
-                    color: pathname === item.path ? 'white' : 'black'
-                  }}
-                  onClick={onClose}
-                >
+                {item.onClick ? (
+                  <button
+                    className={`w-full text-left flex items-center space-x-3 py-2 px-4 rounded-md transition-colors text-black hover:bg-gray-100`}
+                    style={{ color: 'black' }}
+                    onClick={item.onClick}
+                  >
+                    <span className="text-black" style={{ color: 'black' }}>
+                      {item.icon}
+                    </span>
+                    <span className="font-medium text-black !text-black" style={{ color: 'black' }}>{item.name}</span>
+                  </button>
+                ) : (
+                  <Link
+                    href={item.path}
+                    className={`flex items-center space-x-3 py-2 px-4 rounded-md transition-colors ${
+                      pathname === item.path
+                        ? 'bg-black text-white !text-white border-l-4 border-primary'
+                        : 'text-black hover:bg-gray-100'
+                    }`}
+                    style={{
+                      color: pathname === item.path ? 'white' : 'black'
+                    }}
+                    onClick={onClose}
+                  >
                   <span className={`${pathname === item.path ? 'text-white' : 'text-black'} flex items-center justify-center`} style={{ color: pathname === item.path ? 'white' : 'black' }}>
                     {item.icon}
                   </span>
                   <span className={`font-medium ${pathname === item.path ? 'text-white !text-white' : 'text-black !text-black'}`} style={{ color: pathname === item.path ? 'white' : 'black' }}>{item.name}</span>
-                </Link>
+                  </Link>
+                )}
               </li>
             ))}
           </ul>
