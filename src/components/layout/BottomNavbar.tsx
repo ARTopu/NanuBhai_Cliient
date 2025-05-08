@@ -3,9 +3,11 @@
 import Link from 'next/link';
 import { Home, Grid, ShoppingCart } from 'lucide-react';
 import { usePathname } from 'next/navigation';
+import { useCart } from '@/context/CartContext';
 
 const BottomNavbar = () => {
   const pathname = usePathname();
+  const { cartCount } = useCart();
 
   return (
     <div className="fixed md:right-4 md:top-1/2 md:-translate-y-1/2 bottom-3 left-1/2 md:left-auto -translate-x-1/2 md:translate-x-0 z-50 bg-white rounded-full shadow-lg px-3 py-1.5 md:px-2 md:py-3 flex md:flex-col items-center justify-center space-x-5 md:space-x-0 md:space-y-6 border border-gray-200">
@@ -30,7 +32,9 @@ const BottomNavbar = () => {
           <div className="absolute -top-1 md:-left-1 md:top-1/2 md:-translate-y-1/2 left-1/2 transform -translate-x-1/2 md:translate-x-0 w-5 md:w-1 h-1 md:h-5 rounded-full bg-primary"></div>
         )}
         <ShoppingCart className="h-5 w-5 text-black" strokeWidth={2} />
-        <span className="absolute -top-1 -right-1 bg-primary text-white text-[8px] font-bold rounded-full h-4 w-4 flex items-center justify-center">3</span>
+        {cartCount > 0 && (
+          <span className="absolute -top-2 -right-2 bg-red-500 text-white text-[8px] font-bold rounded-full h-5 w-5 flex items-center justify-center border-2 border-white shadow-sm z-10">{cartCount}</span>
+        )}
         <span className="text-[10px] font-bold text-black">Cart</span>
       </Link>
     </div>

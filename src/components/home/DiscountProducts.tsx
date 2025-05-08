@@ -2,6 +2,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
+import AddToCartButton from '../ui/AddToCartButton';
 
 // Sample product data
 const products = [
@@ -207,9 +208,17 @@ const DiscountProducts = () => {
                 <span className="text-[10px] text-green-600 font-medium mb-1">Free Shipping</span>
               )}
 
-              <div className="mt-auto flex items-center">
-                <span className="text-sm font-bold" style={{ color: '#000000' }}>৳{product.price.toFixed(2)}</span>
-                <span className="ml-2 text-xs text-gray-500 line-through">৳{product.originalPrice.toFixed(2)}</span>
+              <div className="mt-auto flex items-center justify-between">
+                <div>
+                  <span className="text-sm font-bold" style={{ color: '#000000' }}>৳{product.price.toFixed(2)}</span>
+                  <span className="ml-2 text-xs text-gray-500 line-through">৳{product.originalPrice.toFixed(2)}</span>
+                </div>
+                <AddToCartButton
+                  productId={product.id}
+                  productName={product.title}
+                  productPrice={product.price}
+                  productImage={product.image}
+                />
               </div>
             </div>
           </article>

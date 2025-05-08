@@ -22,6 +22,14 @@ module.exports = {
           800: '#1f2937',
           900: '#111827',
         },
+        'background': {
+          'card': '#1a1a1a',
+          'secondary': '#2a2a2a',
+        },
+        'foreground': '#f8f8f8',
+        'foreground-muted': '#a0a0a0',
+        'accent': '#333333',
+        'accent-light': '#444444',
       },
       fontSize: {
         'xs': '0.75rem',

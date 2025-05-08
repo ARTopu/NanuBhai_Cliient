@@ -2,58 +2,17 @@
 
 import React, { useState } from 'react';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { Trash2, ShoppingCart as CartIcon } from 'lucide-react';
-
-// Define cart item type
-interface CartItem {
-  id: number;
-  name: string;
-  price: number;
-  image: string;
-  quantity: number;
-  variant: string;
-}
-
-// Sample cart data
-const initialCartItems: CartItem[] = [
-  {
-    id: 1,
-    name: 'Piping nozzles for cake decoration',
-    price: 160.00,
-    image: '/images/product1.jpg',
-    quantity: 1,
-    variant: 'Standard Set'
-  },
-  {
-    id: 2,
-    name: 'Professional kitchen knife set',
-    price: 3150.00,
-    image: '/images/product2.jpg',
-    quantity: 1,
-    variant: 'Professional'
-  }
-];
+import { useCart, CartItem } from '@/context/CartContext';
 
 const ShoppingCart: React.FC = () => {
-  const [cartItems, setCartItems] = useState<CartItem[]>(initialCartItems);
+  const router = useRouter();
+  const { cartItems, updateQuantity, removeFromCart, cartCount } = useCart();
   const [couponCode, setCouponCode] = useState<string>('');
 
   // Calculate total price
   const totalPrice = cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
-
-  // Handle quantity change
-  const updateQuantity = (id: number, newQuantity: number) => {
-    if (newQuantity < 1) return;
-
-    setCartItems(cartItems.map(item =>
-      item.id === id ? { ...item, quantity: newQuantity } : item
-    ));
-  };
-
-  // Handle item removal
-  const removeItem = (id: number) => {
-    setCartItems(cartItems.filter(item => item.id !== id));
-  };
 
   return (
     <div className="max-w-3xl mx-auto bg-white shadow-md rounded-lg overflow-hidden">
@@ -93,7 +52,7 @@ const ShoppingCart: React.FC = () => {
               <div className="flex items-center mt-4">
                 <button
                   onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                  className="w-10 h-10 flex items-center justify-center bg-gray-200 rounded-md"
+                  className="w-10 h-10 flex items-center justify-center bg-gray-200 rounded-md transition-colors"
                 >
                   <span className="text-black text-xl font-extrabold !text-black" style={{ color: 'black' }}>−</span>
                 </button>
@@ -102,7 +61,7 @@ const ShoppingCart: React.FC = () => {
                 </div>
                 <button
                   onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                  className="w-10 h-10 flex items-center justify-center bg-gray-200 rounded-md"
+                  className="w-10 h-10 flex items-center justify-center bg-gray-200 rounded-md transition-colors"
                 >
                   <span className="text-black text-xl font-extrabold !text-black" style={{ color: 'black' }}>+</span>
                 </button>
@@ -111,8 +70,8 @@ const ShoppingCart: React.FC = () => {
 
             {/* Delete Button - Positioned absolutely to avoid overlapping */}
             <button
-              onClick={() => removeItem(item.id)}
-              className="text-gray-700 hover:text-red-500 absolute top-4 right-4"
+              onClick={() => removeFromCart(item.id)}
+              className="text-gray-700 hover:text-red-500 absolute top-4 right-4 transition-colors"
               aria-label="Remove item"
             >
               <Trash2 className="h-6 w-6" />
@@ -127,11 +86,11 @@ const ShoppingCart: React.FC = () => {
           <input
             type="text"
             placeholder="Enter coupon code here"
-            className="flex-grow p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary text-black font-bold placeholder:text-gray-500"
+            className="flex-grow p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary text-black font-bold placeholder:text-black placeholder:opacity-60"
             value={couponCode}
             onChange={(e) => setCouponCode(e.target.value)}
           />
-          <button className="bg-black text-white font-extrabold py-3 px-6 rounded-md hover:bg-gray-800 transition-colors">
+          <button className="bg-black text-white font-extrabold py-3 px-6 rounded-md hover:bg-gray-800 transition-colors shadow-md">
             Add Coupon
           </button>
         </div>
@@ -139,12 +98,15 @@ const ShoppingCart: React.FC = () => {
 
       {/* Total & Checkout */}
       <div className="bg-black text-white p-4 flex items-center justify-between">
-        <div className="font-extrabold text-lg">
+        <div className="font-extrabold text-lg !text-white" style={{ color: 'white' }}>
           Total - ৳{totalPrice.toFixed(2)}
         </div>
-        <button className="flex items-center space-x-2 font-extrabold group">
-          <span>Next</span>
-          <span className="text-xl group-hover:translate-x-1 transition-transform">→</span>
+        <button
+          onClick={() => router.push('/checkout')}
+          className="flex items-center space-x-2 font-extrabold group hover:text-primary transition-colors bg-primary px-4 py-1 rounded-md shadow-md"
+        >
+          <span className="!text-white" style={{ color: 'white' }}>Next</span>
+          <span className="text-xl group-hover:translate-x-1 transition-transform text-white">→</span>
         </button>
       </div>
     </div>

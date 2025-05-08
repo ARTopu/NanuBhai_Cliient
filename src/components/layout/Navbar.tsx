@@ -1,58 +1,78 @@
+'use client';
+
+import { useState } from 'react';
 import Link from 'next/link';
 import { Menu, User, Search, ShoppingCart } from 'lucide-react';
+import { useCart } from '@/context/CartContext';
+import SideNavbar from './SideNavbar';
 
 const Navbar = () => {
+  const { cartCount } = useCart();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   return (
-    <header className="sticky top-0 z-50 bg-white shadow-md">
-      <nav className="bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16 items-center">
-            <div className="flex items-center">
-              <button
-                className="p-2 rounded-md hover:bg-gray-200 transition-colors"
-                aria-label="Open menu"
-              >
-                <Menu className="h-7 w-7 text-gray-800" strokeWidth={2} />
-              </button>
-              <Link href="/" className="ml-4 text-2xl font-extrabold tracking-tight">
-                <span className="text-gray-800">NanuBhai</span>
-              </Link>
-            </div>
+    <>
+      <header className="sticky top-0 z-50 bg-white shadow-md">
+        <nav className="bg-white">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between h-16 items-center">
+              <div className="flex items-center">
+                <button
+                  className="p-2 rounded-md hover:bg-gray-200 transition-colors"
+                  aria-label={isSidebarOpen ? "Close menu" : "Open menu"}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsSidebarOpen(!isSidebarOpen);
+                  }}
+                >
+                  <Menu className="h-7 w-7 text-black" strokeWidth={2} />
+                </button>
+                <Link href="/" className="ml-4 text-2xl font-extrabold tracking-tight">
+                  <span className="text-gray-800">NanuBhai</span>
+                </Link>
+              </div>
 
-            <div className="flex items-center space-x-4">
-              <span className="hidden md:block font-medium text-gray-800">Hi, User</span>
-              <Link
-                href="/cart"
-                className="p-2 rounded-full hover:bg-gray-200 transition-colors relative"
-                aria-label="Shopping cart"
-              >
-                <ShoppingCart className="h-7 w-7 text-black" strokeWidth={2} />
-                <span className="absolute -top-1 -right-1 bg-primary text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">3</span>
-              </Link>
-              <button
-                className="p-2 rounded-full hover:bg-gray-200 transition-colors"
-                aria-label="User menu"
-              >
-                <User className="h-7 w-7 text-gray-800" strokeWidth={2} />
-              </button>
+              <div className="flex items-center space-x-4">
+                <span className="hidden md:block font-medium text-gray-800">Hi, User</span>
+                <Link
+                  href="/cart"
+                  className="p-2 rounded-full hover:bg-gray-200 transition-colors relative"
+                  aria-label="Shopping cart"
+                >
+                  <ShoppingCart className="h-7 w-7 text-black" strokeWidth={2} />
+                  {cartCount > 0 && (
+                    <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center border-2 border-white shadow-sm z-10">{cartCount}</span>
+                  )}
+                </Link>
+                <button
+                  className="p-2 rounded-full hover:bg-gray-200 transition-colors"
+                  aria-label="User menu"
+                >
+                  <User className="h-7 w-7 text-gray-800" strokeWidth={2} />
+                </button>
+              </div>
+            </div>
+          </div>
+        </nav>
+
+        <div className="border-t">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+            <div className="relative flex items-center">
+              <input
+                type="search"
+                placeholder="Search For Products"
+                className="w-full px-4 py-2 pl-10 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-gray-800"
+              />
+              <Search className="absolute left-3 h-5 w-5 text-gray-500" />
             </div>
           </div>
         </div>
-      </nav>
+      </header>
 
-      <div className="border-t">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
-          <div className="relative flex items-center">
-            <input
-              type="search"
-              placeholder="Search For Products"
-              className="w-full px-4 py-2 pl-10 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-gray-800"
-            />
-            <Search className="absolute left-3 h-5 w-5 text-gray-500" />
-          </div>
-        </div>
-      </div>
-    </header>
+      <SideNavbar
+        isOpen={isSidebarOpen}
+        onClose={() => setIsSidebarOpen(false)}
+      />
+    </>
   );
 };
 

@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 import { ShoppingCart } from 'lucide-react';
+import { useCart } from '@/context/CartContext';
 
 // Define product type
 interface ProductImage {
@@ -29,6 +30,7 @@ interface ProductDetailCardProps {
 const ProductDetailCard: React.FC<ProductDetailCardProps> = ({ product }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [quantity, setQuantity] = useState(1);
+  const { addToCart } = useCart();
 
   // Calculate savings
   const savedAmount = product.originalPrice - product.price;
@@ -136,6 +138,14 @@ const ProductDetailCard: React.FC<ProductDetailCardProps> = ({ product }) => {
 
           {/* Add to Cart Button */}
           <button
+            onClick={() => addToCart({
+              id: product.id,
+              name: product.title,
+              price: product.price,
+              image: product.images[0].src,
+              quantity: quantity,
+              variant: 'Standard'
+            })}
             className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-6 rounded-md transition-all duration-300 mb-6 text-base shadow-md hover:shadow-xl flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.98]"
             style={{ backgroundColor: '#2563eb', color: 'white' }}
           >
