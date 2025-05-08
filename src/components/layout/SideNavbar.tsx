@@ -92,32 +92,47 @@ const SideNavbar: React.FC<SideNavbarProps> = ({ isOpen, onClose }) => {
   return (
     <>
       {/* Sidebar */}
-      <div
-        ref={sidebarRef}
-        className={`fixed top-1/2 left-0 -translate-y-1/2 h-auto max-h-[85vh] w-64 bg-white shadow-lg z-50 transform transition-transform duration-300 ease-in-out rounded-r-lg overflow-y-auto ${
-          isOpen ? 'translate-x-0' : '-translate-x-full'
-        }`}
-      >
+      {isOpen && (
+        <div
+          ref={sidebarRef}
+          className="fixed top-1/2 left-0 -translate-y-1/2 h-auto max-h-[85vh] w-64 bg-white shadow-lg z-50 rounded-r-lg overflow-y-auto transform transition-transform duration-300 ease-in-out animate-slideInLeft"
+          style={{
+            transform: isOpen ? 'translateX(0)' : 'translateX(-100%)',
+            animation: 'slideInLeft 0.3s ease-out forwards'
+          }}
+        >
         <div className="flex justify-between items-center p-4 border-b">
-          <h2 className="text-xl font-bold text-black !text-black" style={{ color: 'black' }}>Menu</h2>
+          <h2
+            className="text-xl font-bold text-black !text-black animate-fadeIn"
+            style={{
+              color: 'black',
+              animation: 'fadeIn 0.5s ease-out 0.2s both'
+            }}
+          >
+            Menu
+          </h2>
           <button
             onClick={(e) => {
               e.stopPropagation();
               onClose();
             }}
-            className="p-1 rounded-full hover:bg-gray-200 transition-colors"
+            className="p-1 rounded-full hover:bg-gray-200 transition-all duration-300 hover:rotate-90"
           >
             <X className="w-5 h-5 text-black" />
           </button>
         </div>
 
         <nav className="p-4">
-          <ul className="space-y-3">
-            {navItems.map((item) => (
-              <li key={item.name}>
+          <ul
+            className="space-y-3"
+          >
+            {navItems.map((item, index) => (
+              <li
+                key={item.name}
+              >
                 {item.onClick ? (
                   <button
-                    className={`w-full text-left flex items-center space-x-3 py-2 px-4 rounded-md transition-colors text-black hover:bg-gray-100`}
+                    className={`w-full text-left flex items-center space-x-3 py-2 px-4 rounded-md transition-all duration-200 text-black hover:bg-gray-100 hover:translate-x-1`}
                     style={{ color: 'black' }}
                     onClick={item.onClick}
                   >
@@ -127,7 +142,8 @@ const SideNavbar: React.FC<SideNavbarProps> = ({ isOpen, onClose }) => {
                     <span className="font-medium text-black !text-black" style={{ color: 'black' }}>{item.name}</span>
                   </button>
                 ) : (
-                  <Link
+                  <div className="transition-transform duration-200 hover:translate-x-1">
+                    <Link
                     href={item.path}
                     className={`flex items-center space-x-3 py-2 px-4 rounded-md transition-colors ${
                       pathname === item.path
@@ -144,12 +160,14 @@ const SideNavbar: React.FC<SideNavbarProps> = ({ isOpen, onClose }) => {
                   </span>
                   <span className={`font-medium ${pathname === item.path ? 'text-white !text-white' : 'text-black !text-black'}`} style={{ color: pathname === item.path ? 'white' : 'black' }}>{item.name}</span>
                   </Link>
+                  </div>
                 )}
               </li>
             ))}
           </ul>
         </nav>
-      </div>
+        </div>
+      )}
     </>
   );
 };

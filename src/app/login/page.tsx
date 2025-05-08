@@ -84,9 +84,17 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-6 sm:px-6 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <h2 className="mt-2 text-center text-3xl font-extrabold text-black !text-black" style={{ color: 'black' }}>
+    <div
+      className="min-h-screen bg-gray-50 flex flex-col justify-center py-6 sm:px-6 lg:px-8"
+    >
+      <div
+        className="sm:mx-auto sm:w-full sm:max-w-md animate-fadeIn"
+        style={{ animation: 'fadeIn 0.6s ease-out' }}
+      >
+        <h2
+          className="mt-2 text-center text-3xl font-extrabold text-black !text-black"
+          style={{ color: 'black' }}
+        >
           Sign in to your account
         </h2>
         <p className="mt-2 text-center text-sm text-gray-600">
@@ -97,8 +105,13 @@ const LoginPage = () => {
         </p>
       </div>
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+      <div
+        className="mt-8 sm:mx-auto sm:w-full sm:max-w-md animate-slideUp"
+        style={{ animation: 'slideUp 0.6s ease-out 0.2s both' }}
+      >
+        <div
+          className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10"
+        >
           <form className="space-y-6" onSubmit={handleSubmit}>
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-black !text-black" style={{ color: 'black' }}>
@@ -187,7 +200,7 @@ const LoginPage = () => {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-black hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-black hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-transform duration-200 hover:scale-[1.02] active:scale-[0.98]"
               >
                 {isLoading ? 'Signing in...' : 'Sign in'}
               </button>
@@ -204,17 +217,19 @@ const LoginPage = () => {
               </div>
             </div>
 
-            <div className="mt-6 grid grid-cols-2 gap-3">
+            <div
+              className="mt-6 grid grid-cols-2 gap-3"
+            >
               <button
                 type="button"
-                className="w-full inline-flex justify-center items-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
+                className="w-full inline-flex justify-center items-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition-transform duration-200 hover:scale-[1.03] active:scale-[0.97]"
               >
                 <img src="/images/social/google.svg" alt="Google" className="w-5 h-5 mr-2" />
                 <span className="text-black" style={{ color: 'black' }}>Google</span>
               </button>
               <button
                 type="button"
-                className="w-full inline-flex justify-center items-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
+                className="w-full inline-flex justify-center items-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition-transform duration-200 hover:scale-[1.03] active:scale-[0.97]"
               >
                 <img src="/images/social/facebook.svg" alt="Facebook" className="w-5 h-5 mr-2" />
                 <span className="text-black" style={{ color: 'black' }}>Facebook</span>
