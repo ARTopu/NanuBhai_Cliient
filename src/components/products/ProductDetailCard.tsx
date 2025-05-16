@@ -120,41 +120,42 @@ const ProductDetailCard: React.FC<ProductDetailCardProps> = ({ product }) => {
             <div className="flex items-center mb-4">
               <button
                 onClick={decreaseQuantity}
-                className="w-10 h-10 flex items-center justify-center rounded-l-md bg-gray-200 hover:bg-gray-300 transition-colors border border-gray-300"
+                className="w-8 h-8 flex items-center justify-center rounded-l-md bg-gray-200 hover:bg-gray-300 transition-colors border border-gray-300"
               >
-                <span className="text-xl font-bold text-black">-</span>
+                <span className="text-lg font-bold text-black">-</span>
               </button>
-              <div className="w-16 h-10 flex items-center justify-center border-t border-b border-gray-300 bg-white">
-                <span className="text-base font-bold text-black">{quantity}</span>
+              <div className="w-12 h-8 flex items-center justify-center border-t border-b border-gray-300 bg-white">
+                <span className="text-sm font-bold text-black">{quantity}</span>
               </div>
               <button
                 onClick={increaseQuantity}
-                className="w-10 h-10 flex items-center justify-center rounded-r-md bg-gray-200 hover:bg-gray-300 transition-colors border border-gray-300"
+                className="w-8 h-8 flex items-center justify-center rounded-r-md bg-gray-200 hover:bg-gray-300 transition-colors border border-gray-300"
               >
-                <span className="text-xl font-bold text-black">+</span>
+                <span className="text-lg font-bold text-black">+</span>
               </button>
             </div>
           </div>
 
           {/* Add to Cart Button */}
-          <button
-            onClick={() => addToCart({
-              id: product.id,
-              name: product.title,
-              price: product.price,
-              image: product.images[0].src,
-              quantity: quantity,
-              variant: 'Standard'
-            })}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-6 rounded-md transition-all duration-300 mb-6 text-base shadow-md hover:shadow-xl flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.98]"
-            style={{ backgroundColor: '#2563eb', color: 'white' }}
-          >
-            <ShoppingCart className="w-5 h-5" />
-            <span>Add to Cart</span>
-            <span className="bg-white rounded-full w-6 h-6 flex items-center justify-center ml-1 font-bold text-sm" style={{ color: '#2563eb' }}>
-              {quantity}
-            </span>
-          </button>
+          <div className="flex justify-center mb-6">
+            <button
+              onClick={() => addToCart({
+                id: product.id,
+                name: product.title,
+                price: product.price,
+                image: product.images[0].src,
+                quantity: quantity,
+                variant: 'Standard'
+              })}
+              className="w-3/5 bg-black hover:bg-gray-800 text-white font-bold py-2 px-4 rounded-md transition-all duration-300 text-xs shadow-md hover:shadow-xl flex items-center justify-center gap-1.5 hover:scale-[1.02] active:scale-[0.98]"
+            >
+              <ShoppingCart className="w-3.5 h-3.5" />
+              <span>Add to Cart</span>
+              <span className="bg-white rounded-full w-4 h-4 flex items-center justify-center ml-1.5 font-bold text-[9px] text-black">
+                {quantity}
+              </span>
+            </button>
+          </div>
 
           {/* Product Description */}
           <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">

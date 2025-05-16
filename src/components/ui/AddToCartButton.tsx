@@ -42,10 +42,10 @@ const AddToCartButton: React.FC<AddToCartButtonProps> = ({
   return (
     <button
       onClick={handleAddToCart}
-      className={`flex items-center justify-center gap-1 bg-primary hover:bg-primary-dark text-white rounded-full transition-all duration-300 relative p-2 ${className}`}
+      className={`flex items-center justify-center bg-black hover:bg-gray-800 text-white rounded-full transition-all duration-300 relative p-1.5 ${className}`}
       aria-label="Add to cart"
     >
-      <ShoppingCart className="w-5 h-5" />
+      <ShoppingCart className="w-3.5 h-3.5" />
     </button>
   );
 };
