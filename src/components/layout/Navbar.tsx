@@ -87,16 +87,18 @@ const Navbar = () => {
                     <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-200">
                       {isAuthenticated ? (
                         <>
-                          <Link href="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                          <Link
+                            href="/profile"
+                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                            onClick={() => setShowUserMenu(false)}
+                          >
                             Profile
-                          </Link>
-                          <Link href="/orders" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                            Orders
                           </Link>
                           <button
                             onClick={() => {
                               logout();
                               setShowUserMenu(false);
+                              window.location.href = '/'; // Redirect to home page after logout
                             }}
                             className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                           >
@@ -108,10 +110,18 @@ const Navbar = () => {
                         </>
                       ) : (
                         <>
-                          <Link href="/login" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                          <Link
+                            href="/login"
+                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                            onClick={() => setShowUserMenu(false)}
+                          >
                             Login
                           </Link>
-                          <Link href="/register" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                          <Link
+                            href="/register"
+                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                            onClick={() => setShowUserMenu(false)}
+                          >
                             Register
                           </Link>
                         </>

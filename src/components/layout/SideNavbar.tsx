@@ -79,6 +79,7 @@ const SideNavbar: React.FC<SideNavbarProps> = ({ isOpen, onClose }) => {
         onClick: () => {
           logout();
           onClose();
+          window.location.href = '/'; // Redirect to home page after logout
         }
       }]
     : [
