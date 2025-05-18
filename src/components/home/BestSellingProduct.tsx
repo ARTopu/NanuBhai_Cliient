@@ -218,8 +218,8 @@ const BestSellingProduct = () => {
                   <span className="text-[10px] text-green-600 font-medium mb-1">Free Shipping</span>
                 )}
 
-                <div className="mt-auto flex items-center justify-between">
-                  <div>
+                <div className="mt-auto">
+                  <div className="mb-2 text-center">
                     <span className="text-sm font-bold text-black !text-black" style={{ color: 'black' }}>৳{product.price.toFixed(2)}</span>
                     <span className="ml-2 text-xs text-gray-500 line-through">৳{product.originalPrice.toFixed(2)}</span>
                   </div>
