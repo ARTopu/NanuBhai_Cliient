@@ -18,7 +18,7 @@ interface Product {
 
 // Define props type
 interface CategoryProductListProps {
-  categoryId: number;
+  categoryId: string;
   categoryName: string;
 }
 

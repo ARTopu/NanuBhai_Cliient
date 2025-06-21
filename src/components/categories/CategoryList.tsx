@@ -1,30 +1,46 @@
 "use client";
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { fetchCategories, getImageUrl, Category } from '@/services/api';
 
-// Define the category data
-const categories = [
-  { id: 1, name: 'Cake Mold', image: '/images/categories/categoryimg.jpg' },
-  { id: 2, name: 'Fondants and Tools', image: '/images/categories/categoryimg.jpg' },
-  { id: 3, name: 'Nozzles and Piping bags', image: '/images/categories/categoryimg.jpg' },
-  { id: 4, name: 'Cake Board and Boxes', image: '/images/categories/categoryimg.jpg' },
-  { id: 5, name: 'Baking Tools', image: '/images/categories/categoryimg.jpg' },
-  { id: 6, name: 'Cake Toppers', image: '/images/categories/categoryimg.jpg' },
-  { id: 7, name: 'Cake Ingredients', image: '/images/categories/categoryimg.jpg' },
-  { id: 8, name: 'Sprinkles and Decorations', image: '/images/categories/categoryimg.jpg' },
-  { id: 9, name: 'Cake Flavors', image: '/images/categories/categoryimg.jpg' },
-  { id: 10, name: 'Baking Pans', image: '/images/categories/categoryimg.jpg' },
-  { id: 11, name: 'Measuring Tools', image: '/images/categories/categoryimg.jpg' },
-  { id: 12, name: 'Cake Stands', image: '/images/categories/categoryimg.jpg' },
-  { id: 13, name: 'Packaging Supplies', image: '/images/categories/categoryimg.jpg' },
-  { id: 14, name: 'Edible Prints', image: '/images/categories/categoryimg.jpg' },
-  { id: 15, name: 'Cake Decorating Kits', image: '/images/categories/categoryimg.jpg' },
-  { id: 16, name: 'Baking Accessories', image: '/images/categories/categoryimg.jpg' },
-];
+// No fallback categories needed
 
 const CategoryList: React.FC = () => {
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
+
+  useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        // Fetch categories directly
+        const data = await fetchCategories();
+        console.log('Categories data:', data);
+
+        if (data && data.length > 0) {
+          setCategories(data);
+        } else {
+          setError('No categories found in the response');
+        }
+      } catch (err) {
+        setError(`Failed to load categories: ${err instanceof Error ? err.message : String(err)}`);
+        console.error('Error loading categories:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadCategories();
+  }, []);
+
+  // Filter categories based on search term
+  const filteredCategories = categories.filter(category =>
+    category.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
     <section className="py-6">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -36,6 +52,8 @@ const CategoryList: React.FC = () => {
             type="search"
             placeholder="Search For Categories"
             className="w-full px-4 py-3 pl-10 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-gray-900 text-base font-medium"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
           />
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -54,12 +72,49 @@ const CategoryList: React.FC = () => {
           </svg>
         </div>
 
+        {/* Loading state */}
+        {loading && (
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            {[...Array(10)].map((_, index) => (
+              <div
+                key={index}
+                className="bg-white rounded-lg shadow-md overflow-hidden animate-pulse"
+              >
+                <div className="aspect-square bg-gray-200"></div>
+                <div className="p-3 bg-white">
+                  <div className="h-4 bg-gray-200 rounded w-3/4 mx-auto"></div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Error state or empty categories */}
+        {!loading && (error || categories.length === 0) && (
+          <div className="text-center py-10">
+            <p className="text-red-500 font-medium">Unable to load categories from the server.</p>
+            <p className="text-gray-500 mt-2">{error || 'Please check your connection and try again.'}</p>
+            <div className="mt-4 p-4 bg-gray-100 rounded text-left max-w-lg mx-auto text-xs overflow-auto">
+              <p className="font-bold mb-2">Debug Information:</p>
+              <p>API URL: {process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api'}</p>
+              <p>Error: {error}</p>
+              <p className="mt-2">Please make sure:</p>
+              <ul className="list-disc pl-5 mt-1">
+                <li>Your backend server is running at http://localhost:4000</li>
+                <li>The categories endpoint is available</li>
+                <li>CORS is properly configured on your backend</li>
+              </ul>
+            </div>
+          </div>
+        )}
+
         {/* Category Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
-          {categories.map((category) => (
+        {!loading && !error && categories.length > 0 && (
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            {filteredCategories.map((category) => (
             <Link
-              href={`/categories/${category.id}`}
-              key={category.id}
+              href={`/categories/${category._id}`}
+              key={category._id}
               className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 hover:scale-105 border-2 border-gray-200 hover:border-primary"
             >
               <figure className="relative aspect-square">
@@ -70,7 +125,7 @@ const CategoryList: React.FC = () => {
 
                 {/* Actual image */}
                 <Image
-                  src={category.image}
+                  src={getImageUrl(category.image || '')}
                   alt={`${category.name} category`}
                   fill
                   className="object-cover rounded-t-lg"
@@ -80,8 +135,9 @@ const CategoryList: React.FC = () => {
                 <h3 className="text-base font-extrabold text-black text-center !text-black" style={{ color: 'black' }}>{category.name}</h3>
               </div>
             </Link>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );
