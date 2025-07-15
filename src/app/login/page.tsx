@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Eye, EyeOff, Mail, Lock } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
+import { GoogleLogin } from '@react-oauth/google';
+import axios from 'axios';
 
 const LoginPage = () => {
   const router = useRouter();
@@ -19,6 +21,7 @@ const LoginPage = () => {
     password: '',
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -32,6 +35,10 @@ const LoginPage = () => {
         ...errors,
         [name]: '',
       });
+    }
+    // Clear general error when user starts typing
+    if (error) {
+      setError('');
     }
   };
 
@@ -71,15 +78,39 @@ const LoginPage = () => {
     if (!validateForm()) return;
 
     setIsLoading(true);
+    setError('');
 
     try {
       await login(formData.email, formData.password);
       router.push('/');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Login failed:', error);
       // Handle login error
+      if (error.response?.data?.message) {
+        setError(error.response.data.message);
+      } else if (error.message) {
+        setError(error.message);
+      } else {
+        setError('Login failed. Please check your credentials and try again.');
+      }
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleGoogleSuccess = async (credentialResponse: any) => {
+    try {
+      const res = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/user/google`,
+        { credential: credentialResponse.credential }
+      );
+      if (res.data.success && res.data.access_token && res.data.user) {
+        localStorage.setItem('access_token', res.data.access_token);
+        localStorage.setItem('user', JSON.stringify(res.data.user));
+        window.location.href = '/';
+      }
+    } catch (err) {
+      alert('Google login failed');
     }
   };
 
@@ -176,6 +207,22 @@ const LoginPage = () => {
               {errors.password && <p className="mt-2 text-sm text-red-600">{errors.password}</p>}
             </div>
 
+            {/* Error message */}
+            {error && (
+              <div className="bg-red-50 border border-red-200 rounded-md p-4">
+                <div className="flex">
+                  <div className="flex-shrink-0">
+                    <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <div className="ml-3">
+                    <p className="text-sm text-red-800">{error}</p>
+                  </div>
+                </div>
+              </div>
+            )}
+
             <div className="flex items-center justify-between">
               <div className="flex items-center">
                 <input
@@ -220,13 +267,11 @@ const LoginPage = () => {
             <div
               className="mt-6 grid grid-cols-2 gap-3"
             >
-              <button
-                type="button"
-                className="w-full inline-flex justify-center items-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition-transform duration-200 hover:scale-[1.03] active:scale-[0.97]"
-              >
-                <img src="/images/social/google.svg" alt="Google" className="w-5 h-5 mr-2" />
-                <span className="text-black" style={{ color: 'black' }}>Google</span>
-              </button>
+              <GoogleLogin
+                onSuccess={handleGoogleSuccess}
+                onError={() => alert('Google login failed')}
+                width="100%"
+              />
               <button
                 type="button"
                 className="w-full inline-flex justify-center items-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition-transform duration-200 hover:scale-[1.03] active:scale-[0.97]"

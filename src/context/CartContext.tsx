@@ -1,28 +1,27 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { useAuth } from './AuthContext';
+import axios from 'axios';
 
-// Define cart item type
 export interface CartItem {
-  id: number;
+  productId: string;
   name: string;
   price: number;
   image: string;
   quantity: number;
-  variant: string;
+  variant?: string;
 }
 
-// Define context type
 interface CartContextType {
   cartItems: CartItem[];
   addToCart: (item: CartItem) => void;
-  removeFromCart: (id: number) => void;
-  updateQuantity: (id: number, quantity: number) => void;
+  removeFromCart: (productId: string) => void;
+  updateQuantity: (productId: string, quantity: number) => void;
   clearCart: () => void;
   cartCount: number;
 }
 
-// Create context with default values
 const CartContext = createContext<CartContextType>({
   cartItems: [],
   addToCart: () => {},
@@ -32,119 +31,224 @@ const CartContext = createContext<CartContextType>({
   cartCount: 0,
 });
 
-// Sample initial cart data
-const initialCartItems: CartItem[] = [
-  {
-    id: 1,
-    name: 'Piping nozzles for cake decoration',
-    price: 160.00,
-    image: '/images/product1.jpg',
-    quantity: 1,
-    variant: 'Standard Set'
-  },
-  {
-    id: 2,
-    name: 'Professional kitchen knife set',
-    price: 3150.00,
-    image: '/images/product2.jpg',
-    quantity: 2,
-    variant: 'Professional'
-  }
-];
+const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
-// Provider component
 export const CartProvider = ({ children }: { children: ReactNode }) => {
+  const { user, isAuthenticated, isLoading } = useAuth();
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [cartCount, setCartCount] = useState(0);
 
-  // Initialize cart from localStorage on client side
+  // Load cart from backend or localStorage
   useEffect(() => {
-    // Check if we're in the browser
-    if (typeof window !== 'undefined') {
-      const storedCart = localStorage.getItem('cart');
-      if (storedCart) {
-        try {
-          const parsedCart = JSON.parse(storedCart);
-          setCartItems(parsedCart);
-          // Initialize cart count immediately
-          const count = parsedCart.reduce((total, item) => total + item.quantity, 0);
-          setCartCount(count);
-          console.log('Cart loaded from localStorage:', { parsedCart, count });
-        } catch (error) {
-          console.error('Failed to parse cart from localStorage:', error);
-          setCartItems(initialCartItems);
-          // Set initial count
-          const count = initialCartItems.reduce((total, item) => total + item.quantity, 0);
-          setCartCount(count);
+    if (isLoading) return;
+    if (isAuthenticated && user) {
+      // Fetch cart from backend
+      axios.get(`${apiUrl}/api/cart/`, { withCredentials: true })
+        .then(res => {
+          if (res.data && res.data.cart) {
+            // Map backend cart to CartItem[]
+            const backendCart: CartItem[] = res.data.cart.map((item: any) => ({
+              productId: item.products[0]?._id || item.productId,
+              name: item.products[0]?.name || '',
+              price: item.products[0]?.price || 0,
+              image: item.firstImage?.image ? `${apiUrl}${item.firstImage.image}` : '',
+              quantity: item.quantity || 1,
+            }));
+            setCartItems(backendCart);
+          } else {
+            setCartItems([]);
+          }
+        })
+        .catch(() => setCartItems([]));
+    } else {
+      // Guest: load from localStorage
+      if (typeof window !== 'undefined') {
+        const storedCart = localStorage.getItem('cart');
+        if (storedCart) {
+          try {
+            setCartItems(JSON.parse(storedCart));
+          } catch {
+            setCartItems([]);
+          }
+        } else {
+          setCartItems([]);
         }
-      } else {
-        setCartItems(initialCartItems);
-        // Set initial count
-        const count = initialCartItems.reduce((total, item) => total + item.quantity, 0);
-        setCartCount(count);
-        console.log('Using initial cart items:', { initialCartItems, count });
       }
     }
-  }, []);
+  }, [isAuthenticated, isLoading, user]);
 
-  // Update cart count whenever cartItems changes
+  // Update cart count and localStorage
   useEffect(() => {
     const count = cartItems.reduce((total, item) => total + item.quantity, 0);
     setCartCount(count);
-
-    // Save to localStorage
-    if (typeof window !== 'undefined') {
+    if (!isAuthenticated && typeof window !== 'undefined') {
       if (cartItems.length > 0) {
         localStorage.setItem('cart', JSON.stringify(cartItems));
       } else {
         localStorage.removeItem('cart');
       }
     }
+  }, [cartItems, isAuthenticated]);
 
-    // Log for debugging
-    console.log('Cart updated:', { cartItems, cartCount: count });
-  }, [cartItems]);
-
-  // Add item to cart
-  const addToCart = (item: CartItem) => {
-    setCartItems(prevItems => {
-      const existingItem = prevItems.find(cartItem => cartItem.id === item.id && cartItem.variant === item.variant);
-
-      if (existingItem) {
-        // Update quantity if item already exists
-        return prevItems.map(cartItem =>
-          cartItem.id === item.id && cartItem.variant === item.variant
-            ? { ...cartItem, quantity: cartItem.quantity + item.quantity }
-            : cartItem
-        );
-      } else {
-        // Add new item
-        return [...prevItems, item];
+  // Sync local cart to backend on login
+  useEffect(() => {
+    if (isAuthenticated && user && typeof window !== 'undefined') {
+      const storedCart = localStorage.getItem('cart');
+      if (storedCart) {
+        const localCart: CartItem[] = JSON.parse(storedCart);
+        // Add each item to backend
+        Promise.all(localCart.map(item =>
+          axios.post(`${apiUrl}/api/cart/add`, {
+            userId: user._id,
+            productId: item.productId,
+            quantity: item.quantity,
+          }, { withCredentials: true })
+        )).then(() => {
+          localStorage.removeItem('cart');
+          // Fetch backend cart again
+          axios.get(`${apiUrl}/api/cart/`, { withCredentials: true })
+            .then(res => {
+              if (res.data && res.data.cart) {
+                const backendCart: CartItem[] = res.data.cart.map((item: any) => ({
+                  productId: item.products[0]?._id || item.productId,
+                  name: item.products[0]?.name || '',
+                  price: item.products[0]?.price || 0,
+                  image: item.firstImage?.image ? `${apiUrl}${item.firstImage.image}` : '',
+                  quantity: item.quantity || 1,
+                }));
+                setCartItems(backendCart);
+              } else {
+                setCartItems([]);
+              }
+            });
+        });
       }
-    });
+    }
+  }, [isAuthenticated, user]);
+
+  // Add to cart
+  const addToCart = (item: CartItem) => {
+    if (isAuthenticated && user) {
+      axios.post(`${apiUrl}/api/cart/add`, {
+        userId: user._id,
+        productId: item.productId,
+        quantity: item.quantity,
+      }, { withCredentials: true })
+        .then(() => {
+          // Refetch cart
+          axios.get(`${apiUrl}/api/cart/`, { withCredentials: true })
+            .then(res => {
+              if (res.data && res.data.cart) {
+                const backendCart: CartItem[] = res.data.cart.map((item: any) => ({
+                  productId: item.products[0]?._id || item.productId,
+                  name: item.products[0]?.name || '',
+                  price: item.products[0]?.price || 0,
+                  image: item.firstImage?.image ? `${apiUrl}${item.firstImage.image}` : '',
+                  quantity: item.quantity || 1,
+                }));
+                setCartItems(backendCart);
+              } else {
+                setCartItems([]);
+              }
+            });
+        });
+    } else {
+      setCartItems(prevItems => {
+        const existing = prevItems.find(cartItem => cartItem.productId === item.productId && cartItem.variant === item.variant);
+        if (existing) {
+          return prevItems.map(cartItem =>
+            cartItem.productId === item.productId && cartItem.variant === item.variant
+              ? { ...cartItem, quantity: cartItem.quantity + item.quantity }
+              : cartItem
+          );
+        } else {
+          return [...prevItems, item];
+        }
+      });
+    }
   };
 
-  // Remove item from cart
-  const removeFromCart = (id: number) => {
-    setCartItems(prevItems => prevItems.filter(item => item.id !== id));
+  // Remove from cart
+  const removeFromCart = (productId: string) => {
+    if (isAuthenticated && user) {
+      // Find cart item id in backend (not just productId)
+      axios.get(`${apiUrl}/api/cart/`, { withCredentials: true })
+        .then(res => {
+          const cartItem = res.data.cart.find((item: any) => item.products[0]?._id === productId || item.productId === productId);
+          if (cartItem) {
+            axios.delete(`${apiUrl}/api/cart/${cartItem._id}`, { withCredentials: true })
+              .then(() => {
+                // Refetch cart
+                axios.get(`${apiUrl}/api/cart/`, { withCredentials: true })
+                  .then(res2 => {
+                    if (res2.data && res2.data.cart) {
+                      const backendCart: CartItem[] = res2.data.cart.map((item: any) => ({
+                        productId: item.products[0]?._id || item.productId,
+                        name: item.products[0]?.name || '',
+                        price: item.products[0]?.price || 0,
+                        image: item.firstImage?.image ? `${apiUrl}${item.firstImage.image}` : '',
+                        quantity: item.quantity || 1,
+                      }));
+                      setCartItems(backendCart);
+                    } else {
+                      setCartItems([]);
+                    }
+                  });
+              });
+          }
+        });
+    } else {
+      setCartItems(prevItems => prevItems.filter(item => item.productId !== productId));
+    }
   };
 
-  // Update item quantity
-  const updateQuantity = (id: number, quantity: number) => {
+  // Update quantity
+  const updateQuantity = (productId: string, quantity: number) => {
     if (quantity < 1) return;
-
-    setCartItems(prevItems =>
-      prevItems.map(item =>
-        item.id === id ? { ...item, quantity } : item
-      )
-    );
+    if (isAuthenticated && user) {
+      axios.put(`${apiUrl}/api/cart/change`, {
+        userId: user._id,
+        productId,
+        quantity,
+        type: 'SET',
+      }, { withCredentials: true })
+        .then(() => {
+          // Refetch cart
+          axios.get(`${apiUrl}/api/cart/`, { withCredentials: true })
+            .then(res => {
+              if (res.data && res.data.cart) {
+                const backendCart: CartItem[] = res.data.cart.map((item: any) => ({
+                  productId: item.products[0]?._id || item.productId,
+                  name: item.products[0]?.name || '',
+                  price: item.products[0]?.price || 0,
+                  image: item.firstImage?.image ? `${apiUrl}${item.firstImage.image}` : '',
+                  quantity: item.quantity || 1,
+                }));
+                setCartItems(backendCart);
+              } else {
+                setCartItems([]);
+              }
+            });
+        });
+    } else {
+      setCartItems(prevItems =>
+        prevItems.map(item =>
+          item.productId === productId ? { ...item, quantity } : item
+        )
+      );
+    }
   };
 
   // Clear cart
   const clearCart = () => {
-    setCartItems([]);
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('cart');
+    if (isAuthenticated && user) {
+      axios.delete(`${apiUrl}/api/cart/empty`, { withCredentials: true })
+        .then(() => setCartItems([]));
+    } else {
+      setCartItems([]);
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('cart');
+      }
     }
   };
 
@@ -162,5 +266,4 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
-// Custom hook to use the cart context
 export const useCart = () => useContext(CartContext);

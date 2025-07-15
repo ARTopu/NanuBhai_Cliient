@@ -2,7 +2,7 @@
 
 // Define the base URL for the API
 const API_BASE_URL = 'http://localhost:4000';
-const CATEGORY_ENDPOINT = `${API_BASE_URL}/api/Category/GetAll`;
+const CATEGORY_ENDPOINT = `${API_BASE_URL}/api/category/GetAll`;
 
 // For debugging
 console.log('API_BASE_URL:', API_BASE_URL);
@@ -16,7 +16,7 @@ export interface Category {
   description?: string;
   imageUrl?: string;
   image?: string;
-  subCategories?: any[];
+  subCategories?: Category[];
 }
 
 // Fetch all categories
@@ -59,7 +59,19 @@ export const fetchCategories = async (): Promise<Category[]> => {
             _id: item.id || item._id,
             name: item.name,
             description: item.description || '',
-            image: item.imageUrl || item.image || ''
+            image: item.imageUrl || item.image || '',
+            subCategories: item.subCategories || []
+          }));
+        } else if (data && Array.isArray(data)) {
+          // Handle case where API returns array directly
+          console.log('Successfully fetched categories from API (direct array)');
+
+          return data.map((item: any) => ({
+            _id: item.id || item._id,
+            name: item.name,
+            description: item.description || '',
+            image: item.imageUrl || item.image || '',
+            subCategories: item.subCategories || []
           }));
         } else {
           throw new Error('Invalid data format from API');

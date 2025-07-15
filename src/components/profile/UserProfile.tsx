@@ -3,61 +3,28 @@
 import React, { useState, useEffect } from 'react';
 import { User, Mail, Phone, MapPin, Edit2, Save, Camera } from 'lucide-react';
 import Image from 'next/image';
-
-// Define user profile interface
-interface UserData {
-  id: number;
-  name: string;
-  email: string;
-  phone: string;
-  address: {
-    street: string;
-    city: string;
-    state: string;
-    zipCode: string;
-    country: string;
-  };
-  profileImage: string;
-  joinDate: string;
-}
+import { useAuth } from '@/context/AuthContext';
 
 const UserProfile: React.FC = () => {
-  // In a real app, this would come from an API or context
-  const [userData, setUserData] = useState<UserData>({
-    id: 1,
-    name: 'John Doe',
-    email: 'john.doe@example.com',
-    phone: '+1 (555) 123-4567',
-    address: {
-      street: '123 Main Street',
-      city: 'New York',
-      state: 'NY',
-      zipCode: '10001',
-      country: 'United States'
-    },
-    profileImage: '/images/avatar-placeholder.jpg',
-    joinDate: '2023-01-15'
-  });
-
+  const { user, updateProfile } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
-  const [formData, setFormData] = useState(userData);
+  const [formData, setFormData] = useState<any>(user);
   const [isLoading, setIsLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
+  const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
 
-  // Reset form data when userData changes
   useEffect(() => {
-    setFormData(userData);
-  }, [userData]);
+    setFormData(user);
+  }, [user]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    
     if (name.includes('.')) {
       const [parent, child] = name.split('.');
       setFormData({
         ...formData,
         [parent]: {
-          ...formData[parent as keyof UserData] as Record<string, string>,
+          ...formData[parent],
           [child]: value
         }
       });
@@ -72,23 +39,28 @@ const UserProfile: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    
-    // Simulate API call
-    setTimeout(() => {
-      setUserData(formData);
+    try {
+      await updateProfile({
+        name: formData.name,
+        phone: formData.phone,
+        address: formData.address,
+        profileImageFile: selectedImageFile || undefined
+      });
       setIsEditing(false);
-      setIsLoading(false);
       setSuccessMessage('Profile updated successfully!');
-      
-      // Clear success message after 3 seconds
-      setTimeout(() => {
-        setSuccessMessage('');
-      }, 3000);
-    }, 1000);
+      setTimeout(() => setSuccessMessage(''), 3000);
+      setSelectedImageFile(null);
+    } catch (error) {
+      setSuccessMessage('Profile update failed!');
+      setTimeout(() => setSuccessMessage(''), 3000);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
+      setSelectedImageFile(e.target.files[0]);
       const reader = new FileReader();
       reader.onload = (event) => {
         if (event.target?.result) {
@@ -102,11 +74,13 @@ const UserProfile: React.FC = () => {
     }
   };
 
-  // Format join date
   const formatDate = (dateString: string) => {
+    if (!dateString) return '';
     const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric' };
     return new Date(dateString).toLocaleDateString(undefined, options);
   };
+
+  if (!user) return <div className="p-6">Loading...</div>;
 
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden">
@@ -117,8 +91,8 @@ const UserProfile: React.FC = () => {
           <div className="relative">
             <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-white">
               <Image 
-                src={formData.profileImage || '/images/avatar-placeholder.jpg'} 
-                alt={formData.name}
+                src={formData?.profileImage || '/images/avatar-placeholder.jpg'} 
+                alt={formData?.name || 'User'}
                 width={96}
                 height={96}
                 className="object-cover w-full h-full"
@@ -137,13 +111,11 @@ const UserProfile: React.FC = () => {
               </label>
             )}
           </div>
-          
           {/* User Info */}
           <div>
-            <h1 className="text-2xl font-bold">{userData.name}</h1>
-            <p className="text-gray-300">Member since {formatDate(userData.joinDate)}</p>
+            <h1 className="text-2xl font-bold">{formData?.name}</h1>
+            <p className="text-gray-300">Member since {formatDate(user?.createdAt)}</p>
           </div>
-          
           {/* Edit Button */}
           <button 
             onClick={() => setIsEditing(!isEditing)}
@@ -153,14 +125,12 @@ const UserProfile: React.FC = () => {
           </button>
         </div>
       </div>
-      
       {/* Success Message */}
       {successMessage && (
         <div className="bg-green-100 text-green-800 p-3 text-center">
           {successMessage}
         </div>
       )}
-      
       {/* Profile Content */}
       <div className="p-6">
         <form onSubmit={handleSubmit}>
@@ -168,7 +138,6 @@ const UserProfile: React.FC = () => {
             {/* Personal Information */}
             <div className="space-y-4">
               <h2 className="text-xl font-semibold text-black border-b pb-2">Personal Information</h2>
-              
               <div className="space-y-3">
                 <div>
                   <label htmlFor="name" className="block text-sm font-medium text-black mb-1">
@@ -182,14 +151,13 @@ const UserProfile: React.FC = () => {
                       type="text"
                       id="name"
                       name="name"
-                      value={formData.name}
+                      value={formData?.name || ''}
                       onChange={handleInputChange}
                       disabled={!isEditing}
                       className="pl-10 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary text-black disabled:bg-gray-100"
                     />
                   </div>
                 </div>
-                
                 <div>
                   <label htmlFor="email" className="block text-sm font-medium text-black mb-1">
                     Email Address
@@ -202,14 +170,12 @@ const UserProfile: React.FC = () => {
                       type="email"
                       id="email"
                       name="email"
-                      value={formData.email}
-                      onChange={handleInputChange}
-                      disabled={!isEditing}
+                      value={formData?.email || ''}
+                      disabled
                       className="pl-10 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary text-black disabled:bg-gray-100"
                     />
                   </div>
                 </div>
-                
                 <div>
                   <label htmlFor="phone" className="block text-sm font-medium text-black mb-1">
                     Phone Number
@@ -222,7 +188,7 @@ const UserProfile: React.FC = () => {
                       type="tel"
                       id="phone"
                       name="phone"
-                      value={formData.phone}
+                      value={formData?.phone || ''}
                       onChange={handleInputChange}
                       disabled={!isEditing}
                       className="pl-10 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary text-black disabled:bg-gray-100"
@@ -231,11 +197,9 @@ const UserProfile: React.FC = () => {
                 </div>
               </div>
             </div>
-            
             {/* Address Information */}
             <div className="space-y-4">
               <h2 className="text-xl font-semibold text-black border-b pb-2">Address Information</h2>
-              
               <div className="space-y-3">
                 <div>
                   <label htmlFor="address.street" className="block text-sm font-medium text-black mb-1">
@@ -249,14 +213,13 @@ const UserProfile: React.FC = () => {
                       type="text"
                       id="address.street"
                       name="address.street"
-                      value={formData.address.street}
+                      value={formData?.address?.street || ''}
                       onChange={handleInputChange}
                       disabled={!isEditing}
                       className="pl-10 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary text-black disabled:bg-gray-100"
                     />
                   </div>
                 </div>
-                
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label htmlFor="address.city" className="block text-sm font-medium text-black mb-1">
@@ -266,13 +229,12 @@ const UserProfile: React.FC = () => {
                       type="text"
                       id="address.city"
                       name="address.city"
-                      value={formData.address.city}
+                      value={formData?.address?.city || ''}
                       onChange={handleInputChange}
                       disabled={!isEditing}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary text-black disabled:bg-gray-100"
                     />
                   </div>
-                  
                   <div>
                     <label htmlFor="address.state" className="block text-sm font-medium text-black mb-1">
                       State/Province
@@ -281,14 +243,13 @@ const UserProfile: React.FC = () => {
                       type="text"
                       id="address.state"
                       name="address.state"
-                      value={formData.address.state}
+                      value={formData?.address?.state || ''}
                       onChange={handleInputChange}
                       disabled={!isEditing}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary text-black disabled:bg-gray-100"
                     />
                   </div>
                 </div>
-                
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label htmlFor="address.zipCode" className="block text-sm font-medium text-black mb-1">
@@ -298,13 +259,12 @@ const UserProfile: React.FC = () => {
                       type="text"
                       id="address.zipCode"
                       name="address.zipCode"
-                      value={formData.address.zipCode}
+                      value={formData?.address?.zipCode || ''}
                       onChange={handleInputChange}
                       disabled={!isEditing}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary text-black disabled:bg-gray-100"
                     />
                   </div>
-                  
                   <div>
                     <label htmlFor="address.country" className="block text-sm font-medium text-black mb-1">
                       Country
@@ -313,7 +273,7 @@ const UserProfile: React.FC = () => {
                       type="text"
                       id="address.country"
                       name="address.country"
-                      value={formData.address.country}
+                      value={formData?.address?.country || ''}
                       onChange={handleInputChange}
                       disabled={!isEditing}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary text-black disabled:bg-gray-100"
@@ -323,14 +283,13 @@ const UserProfile: React.FC = () => {
               </div>
             </div>
           </div>
-          
           {/* Save Button */}
           {isEditing && (
             <div className="mt-6 flex justify-end">
               <button
                 type="button"
                 onClick={() => {
-                  setFormData(userData);
+                  setFormData(user);
                   setIsEditing(false);
                 }}
                 className="mr-3 px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none"

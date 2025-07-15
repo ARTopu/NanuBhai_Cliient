@@ -51,7 +51,7 @@ const Navbar = () => {
 
               <div className="flex items-center space-x-4">
                 {isAuthenticated ? (
-                  <span className="hidden md:block font-medium text-black">Hi, {user?.fullName || user?.email}</span>
+                  <span className="hidden md:block font-medium text-black">Hi, {user?.name || user?.email}</span>
                 ) : (
                   <div className="hidden md:flex space-x-2">
                     <Link href="/login" className="font-medium text-black hover:text-primary transition-colors">

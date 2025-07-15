@@ -14,16 +14,15 @@ type TabType = 'profile' | 'orders' | 'orderDetail' | 'wishlist' | 'payment' | '
 const UserDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabType>('profile');
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
 
-  // Sample user data (in a real app, this would come from an API or context)
-  const userData = {
-    name: 'John Doe',
-    email: 'john.doe@example.com',
-    profileImage: '/images/avatar-placeholder.jpg',
-    orderCount: 5,
-    wishlistCount: 12
-  };
+  // Use logged-in user data
+  const orderCount = 0; // TODO: Replace with real order count from API if available
+  const wishlistCount = 0; // TODO: Replace with real wishlist count from API if available
+
+  if (!user) {
+    return <div className="p-8 text-center">Loading...</div>;
+  }
 
   // Handle tab change
   const handleTabChange = (tab: TabType) => {
@@ -109,16 +108,16 @@ const UserDashboard: React.FC = () => {
                 <div className="flex items-center">
                   <div className="w-14 h-14 rounded-full overflow-hidden bg-gray-200">
                     <Image
-                      src={userData.profileImage}
-                      alt={userData.name}
+                      src={user.profileImage || '/images/avatar-placeholder.jpg'}
+                      alt={user.name}
                       width={56}
                       height={56}
                       className="object-cover w-full h-full"
                     />
                   </div>
                   <div className="ml-4">
-                    <h2 className="text-lg font-bold text-black">{userData.name}</h2>
-                    <p className="text-sm text-gray-600">{userData.email}</p>
+                    <h2 className="text-lg font-bold text-black">{user.name}</h2>
+                    <p className="text-sm text-gray-600">{user.email}</p>
                   </div>
                 </div>
               </div>
@@ -151,7 +150,7 @@ const UserDashboard: React.FC = () => {
                       <Package className={`h-5 w-5 ${activeTab === 'orders' || activeTab === 'orderDetail' ? 'text-white' : 'text-gray-500'} mr-3`} />
                       <span>My Orders</span>
                       <span className="ml-auto bg-gray-200 text-gray-800 text-xs font-medium px-2 py-0.5 rounded-full">
-                        {userData.orderCount}
+                        {orderCount}
                       </span>
                     </button>
                   </li>
@@ -168,7 +167,7 @@ const UserDashboard: React.FC = () => {
                       <Heart className={`h-5 w-5 ${activeTab === 'wishlist' ? 'text-white' : 'text-gray-500'} mr-3`} />
                       <span>Wishlist</span>
                       <span className="ml-auto bg-gray-200 text-gray-800 text-xs font-medium px-2 py-0.5 rounded-full">
-                        {userData.wishlistCount}
+                        {wishlistCount}
                       </span>
                     </button>
                   </li>
@@ -221,12 +220,12 @@ const UserDashboard: React.FC = () => {
               <div className="grid grid-cols-2 gap-4">
                 <div className="bg-gray-50 p-4 rounded-md text-center">
                   <ShoppingBag className="h-6 w-6 text-primary mx-auto mb-2" />
-                  <p className="text-2xl font-bold text-black">{userData.orderCount}</p>
+                  <p className="text-2xl font-bold text-black">{orderCount}</p>
                   <p className="text-sm text-gray-600">Orders</p>
                 </div>
                 <div className="bg-gray-50 p-4 rounded-md text-center">
                   <Heart className="h-6 w-6 text-red-500 mx-auto mb-2" />
-                  <p className="text-2xl font-bold text-black">{userData.wishlistCount}</p>
+                  <p className="text-2xl font-bold text-black">{wishlistCount}</p>
                   <p className="text-sm text-gray-600">Wishlist</p>
                 </div>
               </div>

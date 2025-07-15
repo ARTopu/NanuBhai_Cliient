@@ -112,29 +112,50 @@ const CategoryList: React.FC = () => {
         {!loading && !error && categories.length > 0 && (
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
             {filteredCategories.map((category) => (
-            <Link
-              href={`/categories/${category._id}`}
-              key={category._id}
-              className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 hover:scale-105 border-2 border-gray-200 hover:border-primary"
-            >
-              <figure className="relative aspect-square">
-                {/* Fallback image if the actual image is not available */}
-                <div className="absolute inset-0 bg-gray-200 flex items-center justify-center">
-                  <span className="text-black text-sm font-bold !text-black" style={{ color: 'black' }}>{category.name}</span>
-                </div>
+              <div key={category._id} className="space-y-2">
+                {/* Main Category */}
+                <Link
+                  href={`/categories/${category._id}`}
+                  className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 hover:scale-105 border-2 border-gray-200 hover:border-primary block"
+                >
+                  <figure className="relative aspect-square">
+                    {/* Fallback image if the actual image is not available */}
+                    <div className="absolute inset-0 bg-gray-200 flex items-center justify-center">
+                      <span className="text-black text-sm font-bold !text-black" style={{ color: 'black' }}>{category.name}</span>
+                    </div>
 
-                {/* Actual image */}
-                <Image
-                  src={getImageUrl(category.image || '')}
-                  alt={`${category.name} category`}
-                  fill
-                  className="object-cover rounded-t-lg"
-                />
-              </figure>
-              <div className="p-3 bg-white">
-                <h3 className="text-base font-extrabold text-black text-center !text-black" style={{ color: 'black' }}>{category.name}</h3>
+                    {/* Actual image */}
+                    <Image
+                      src={getImageUrl(category.image || '')}
+                      alt={`${category.name} category`}
+                      fill
+                      className="object-cover rounded-t-lg"
+                    />
+                  </figure>
+                  <div className="p-3 bg-white">
+                    <h3 className="text-base font-extrabold text-black text-center !text-black" style={{ color: 'black' }}>{category.name}</h3>
+                  </div>
+                </Link>
+
+                {/* Sub Categories */}
+                {category.subCategories && category.subCategories.length > 0 && (
+                  <div className="grid grid-cols-2 gap-2">
+                    {category.subCategories.map((subCategory: any) => (
+                      <Link
+                        key={subCategory._id}
+                        href={`/categories/${subCategory._id}`}
+                        className="bg-gray-50 rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-all duration-300 hover:scale-105 border border-gray-200 hover:border-primary block"
+                      >
+                        <div className="p-2">
+                          <h4 className="text-xs font-semibold text-black text-center !text-black" style={{ color: 'black' }}>
+                            {subCategory.name}
+                          </h4>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                )}
               </div>
-            </Link>
             ))}
           </div>
         )}

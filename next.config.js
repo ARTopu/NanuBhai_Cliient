@@ -14,7 +14,10 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   images: {
-    domains: ['localhost'],
+    domains: [
+      'lh3.googleusercontent.com', // Google profile images
+      // add any other domains you need
+    ],
     remotePatterns: [
       {
         protocol: 'http',
